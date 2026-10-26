@@ -1,0 +1,58 @@
+name: iOS
+
+on:
+  push:
+    paths:
+      - "DigitalCandle/**"
+      - "DigitalCandle.xcodeproj/**"
+      - "scripts/**"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and screenshot
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Build for the iOS Simulator
+        run: |
+          xcodebuild build \
+            -project DigitalCandle.xcodeproj \
+            -scheme DigitalCandle \
+            -configuration Debug \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build \
+            -quiet \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Take screenshots in the Simulator
+        run: scripts/take-screenshots.sh build/Build/Products/Debug-iphonesimulator/DigitalCandle.app screenshots
+
+      - name: Print screenshot previews
+        if: always()
+        run: |
+          for f in screenshots/*.png; do
+            [ -e "$f" ] || continue
+            sips -Z 560 -s format jpeg -s formatOptions 55 "$f" --out "${f%.png}.jpg" >/dev/null
+            echo "BEGIN-PREVIEW $(basename "${f%.png}")"
+            base64 -b 1000 -i "${f%.png}.jpg"
+            echo "END-PREVIEW"
+          done
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: screenshots/*.png
+          if-no-files-found: ignore

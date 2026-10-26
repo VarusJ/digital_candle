@@ -1,0 +1,401 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		20C8BF07717821DEA4DAC6E3 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4777CC881A18EC120AC9F0CF /* Haptics.swift */; };
+		306B134A121E97E69C434ED1 /* BirthdaySongPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8830A094D8FA924D402F0BB /* BirthdaySongPlayer.swift */; };
+		32048156C021CF49976460A7 /* SceneDecor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F53900D8EED9ED493BBBE0 /* SceneDecor.swift */; };
+		3618D6561EFC749FC32D0CA3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52460FE521291594751D6BFC /* ContentView.swift */; };
+		42CFF19116B52AA351D9B7A0 /* MicrophoneLevelMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6636EE68A541948A424027A0 /* MicrophoneLevelMonitor.swift */; };
+		5952674A28C488A531373CB0 /* DigitalCandleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383920868FAB6EEE09F44591 /* DigitalCandleApp.swift */; };
+		75A6145185346B67CF86E433 /* BlowAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9098EC32767619D44A844A1 /* BlowAnalyzer.swift */; };
+		83BEE04301E1BD2D0C1B9955 /* FlameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E84C18768F462817E2D1B09 /* FlameView.swift */; };
+		8FECC27E2EFFA20F23F0F4A4 /* MatchStick.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F97EB5A9854AFCCC78CF24D /* MatchStick.swift */; };
+		92C42F6F46A94B3D66CEDDDD /* Effects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63CCB55B5C2DBBA5AA976FF7 /* Effects.swift */; };
+		A2901D71E9EB16BC3361B23A /* CandleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BAD49C0BFB8AC221C4C71D /* CandleModel.swift */; };
+		C052045C580C67772089F5F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBBE61808AB9A2CE370462BA /* Assets.xcassets */; };
+		D2F4960158C22269B9F63EFC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4769EAEF04F9CD64AF9260F /* SettingsView.swift */; };
+		E9B2E8D53A4C2462B8A60A89 /* CandleBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F86A06483CF220BCF6F4FA /* CandleBody.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		1E84C18768F462817E2D1B09 /* FlameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlameView.swift; sourceTree = "<group>"; };
+		22BAD49C0BFB8AC221C4C71D /* CandleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandleModel.swift; sourceTree = "<group>"; };
+		383920868FAB6EEE09F44591 /* DigitalCandleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalCandleApp.swift; sourceTree = "<group>"; };
+		3F97EB5A9854AFCCC78CF24D /* MatchStick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchStick.swift; sourceTree = "<group>"; };
+		4777CC881A18EC120AC9F0CF /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		52460FE521291594751D6BFC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		63CCB55B5C2DBBA5AA976FF7 /* Effects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Effects.swift; sourceTree = "<group>"; };
+		63F86A06483CF220BCF6F4FA /* CandleBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandleBody.swift; sourceTree = "<group>"; };
+		6636EE68A541948A424027A0 /* MicrophoneLevelMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneLevelMonitor.swift; sourceTree = "<group>"; };
+		B9098EC32767619D44A844A1 /* BlowAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlowAnalyzer.swift; sourceTree = "<group>"; };
+		C4769EAEF04F9CD64AF9260F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		CBBE61808AB9A2CE370462BA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D2F53900D8EED9ED493BBBE0 /* SceneDecor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDecor.swift; sourceTree = "<group>"; };
+		D8830A094D8FA924D402F0BB /* BirthdaySongPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BirthdaySongPlayer.swift; sourceTree = "<group>"; };
+		F270735C2E8D9BE6CBCC235C /* DigitalCandle.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DigitalCandle.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		48EBD5DEFD2A1420790F5431 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5A3E3BE514CA102B44DD21B6 = {
+			isa = PBXGroup;
+			children = (
+				3BD7B781E9E6C5A593C80C65 /* DigitalCandle */,
+				D9434F7BC425CBB9FF3F9D75 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D9434F7BC425CBB9FF3F9D75 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				F270735C2E8D9BE6CBCC235C /* DigitalCandle.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3BD7B781E9E6C5A593C80C65 /* DigitalCandle */ = {
+			isa = PBXGroup;
+			children = (
+				B8FF6332D047346D1D5A456F /* Audio */,
+				28116649D540699BBB27B746 /* Views */,
+				383920868FAB6EEE09F44591 /* DigitalCandleApp.swift */,
+				52460FE521291594751D6BFC /* ContentView.swift */,
+				22BAD49C0BFB8AC221C4C71D /* CandleModel.swift */,
+				C4769EAEF04F9CD64AF9260F /* SettingsView.swift */,
+				4777CC881A18EC120AC9F0CF /* Haptics.swift */,
+				CBBE61808AB9A2CE370462BA /* Assets.xcassets */,
+			);
+			path = DigitalCandle;
+			sourceTree = "<group>";
+		};
+		B8FF6332D047346D1D5A456F /* Audio */ = {
+			isa = PBXGroup;
+			children = (
+				B9098EC32767619D44A844A1 /* BlowAnalyzer.swift */,
+				6636EE68A541948A424027A0 /* MicrophoneLevelMonitor.swift */,
+				D8830A094D8FA924D402F0BB /* BirthdaySongPlayer.swift */,
+			);
+			path = Audio;
+			sourceTree = "<group>";
+		};
+		28116649D540699BBB27B746 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				1E84C18768F462817E2D1B09 /* FlameView.swift */,
+				63F86A06483CF220BCF6F4FA /* CandleBody.swift */,
+				63CCB55B5C2DBBA5AA976FF7 /* Effects.swift */,
+				3F97EB5A9854AFCCC78CF24D /* MatchStick.swift */,
+				D2F53900D8EED9ED493BBBE0 /* SceneDecor.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		800CBDDBF9C1ABDE2BE23613 /* DigitalCandle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 57DE128541FB7E9DD04C0E41 /* Build configuration list for PBXNativeTarget "DigitalCandle" */;
+			buildPhases = (
+				A2F312F2D188ECA13AEF4522 /* Sources */,
+				48EBD5DEFD2A1420790F5431 /* Frameworks */,
+				8F246A1BCF953AB87A53B9D8 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DigitalCandle;
+			productName = DigitalCandle;
+			productReference = F270735C2E8D9BE6CBCC235C /* DigitalCandle.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CB9336A333ADE36A7E1D9949 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					800CBDDBF9C1ABDE2BE23613 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = EA4227CE2FB562D9BB6FB093 /* Build configuration list for PBXProject "DigitalCandle" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = "zh-Hans";
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				"zh-Hans",
+				Base,
+			);
+			mainGroup = 5A3E3BE514CA102B44DD21B6;
+			productRefGroup = D9434F7BC425CBB9FF3F9D75 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				800CBDDBF9C1ABDE2BE23613 /* DigitalCandle */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		8F246A1BCF953AB87A53B9D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C052045C580C67772089F5F1 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		A2F312F2D188ECA13AEF4522 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5952674A28C488A531373CB0 /* DigitalCandleApp.swift in Sources */,
+				3618D6561EFC749FC32D0CA3 /* ContentView.swift in Sources */,
+				A2901D71E9EB16BC3361B23A /* CandleModel.swift in Sources */,
+				D2F4960158C22269B9F63EFC /* SettingsView.swift in Sources */,
+				20C8BF07717821DEA4DAC6E3 /* Haptics.swift in Sources */,
+				75A6145185346B67CF86E433 /* BlowAnalyzer.swift in Sources */,
+				42CFF19116B52AA351D9B7A0 /* MicrophoneLevelMonitor.swift in Sources */,
+				306B134A121E97E69C434ED1 /* BirthdaySongPlayer.swift in Sources */,
+				83BEE04301E1BD2D0C1B9955 /* FlameView.swift in Sources */,
+				E9B2E8D53A4C2462B8A60A89 /* CandleBody.swift in Sources */,
+				92C42F6F46A94B3D66CEDDDD /* Effects.swift in Sources */,
+				8FECC27E2EFFA20F23F0F4A4 /* MatchStick.swift in Sources */,
+				32048156C021CF49976460A7 /* SceneDecor.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		0B1F33D2AB56F293056AC444 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		9B3A3D3CE4869BF79BB801B3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		A8FF47B33353409C4D5B43D6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "电子蜡烛";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "需要用麦克风感应你吹气，才能吹灭蜡烛。声音只在手机上实时分析，不会被录下或保存。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.varusj.DigitalCandle;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		F573A99B2E7838D00D229819 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "电子蜡烛";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.entertainment";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "需要用麦克风感应你吹气，才能吹灭蜡烛。声音只在手机上实时分析，不会被录下或保存。";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.varusj.DigitalCandle;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		EA4227CE2FB562D9BB6FB093 /* Build configuration list for PBXProject "DigitalCandle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0B1F33D2AB56F293056AC444 /* Debug */,
+				9B3A3D3CE4869BF79BB801B3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		57DE128541FB7E9DD04C0E41 /* Build configuration list for PBXNativeTarget "DigitalCandle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A8FF47B33353409C4D5B43D6 /* Debug */,
+				F573A99B2E7838D00D229819 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CB9336A333ADE36A7E1D9949 /* Project object */;
+}

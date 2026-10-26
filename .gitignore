@@ -1,0 +1,13 @@
+# Xcode
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+
+# macOS
+.DS_Store
+
+# Simulator screenshots from scripts/take-screenshots.sh
+screenshots/
