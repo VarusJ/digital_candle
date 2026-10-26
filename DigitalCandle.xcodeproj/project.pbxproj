@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0E00B192BDB03A41DB2CC55F /* Cake.swift in Sources */ = {isa = PBXBuildFile; fileRef = 146C6EDE9E04AF50494C3774 /* Cake.swift */; };
 		20C8BF07717821DEA4DAC6E3 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4777CC881A18EC120AC9F0CF /* Haptics.swift */; };
 		306B134A121E97E69C434ED1 /* BirthdaySongPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8830A094D8FA924D402F0BB /* BirthdaySongPlayer.swift */; };
 		32048156C021CF49976460A7 /* SceneDecor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2F53900D8EED9ED493BBBE0 /* SceneDecor.swift */; };
 		3618D6561EFC749FC32D0CA3 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52460FE521291594751D6BFC /* ContentView.swift */; };
 		42CFF19116B52AA351D9B7A0 /* MicrophoneLevelMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6636EE68A541948A424027A0 /* MicrophoneLevelMonitor.swift */; };
+		4AE0B208B32C69FBD1BA8495 /* Candle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 597967F1F5AB3D6D51C4EBA9 /* Candle.swift */; };
 		5952674A28C488A531373CB0 /* DigitalCandleApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 383920868FAB6EEE09F44591 /* DigitalCandleApp.swift */; };
 		75A6145185346B67CF86E433 /* BlowAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9098EC32767619D44A844A1 /* BlowAnalyzer.swift */; };
 		83BEE04301E1BD2D0C1B9955 /* FlameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E84C18768F462817E2D1B09 /* FlameView.swift */; };
@@ -20,18 +22,18 @@
 		A2901D71E9EB16BC3361B23A /* CandleModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22BAD49C0BFB8AC221C4C71D /* CandleModel.swift */; };
 		C052045C580C67772089F5F1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CBBE61808AB9A2CE370462BA /* Assets.xcassets */; };
 		D2F4960158C22269B9F63EFC /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4769EAEF04F9CD64AF9260F /* SettingsView.swift */; };
-		E9B2E8D53A4C2462B8A60A89 /* CandleBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63F86A06483CF220BCF6F4FA /* CandleBody.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		146C6EDE9E04AF50494C3774 /* Cake.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cake.swift; sourceTree = "<group>"; };
 		1E84C18768F462817E2D1B09 /* FlameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlameView.swift; sourceTree = "<group>"; };
 		22BAD49C0BFB8AC221C4C71D /* CandleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandleModel.swift; sourceTree = "<group>"; };
 		383920868FAB6EEE09F44591 /* DigitalCandleApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DigitalCandleApp.swift; sourceTree = "<group>"; };
 		3F97EB5A9854AFCCC78CF24D /* MatchStick.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MatchStick.swift; sourceTree = "<group>"; };
 		4777CC881A18EC120AC9F0CF /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		52460FE521291594751D6BFC /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		597967F1F5AB3D6D51C4EBA9 /* Candle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Candle.swift; sourceTree = "<group>"; };
 		63CCB55B5C2DBBA5AA976FF7 /* Effects.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Effects.swift; sourceTree = "<group>"; };
-		63F86A06483CF220BCF6F4FA /* CandleBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CandleBody.swift; sourceTree = "<group>"; };
 		6636EE68A541948A424027A0 /* MicrophoneLevelMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MicrophoneLevelMonitor.swift; sourceTree = "<group>"; };
 		B9098EC32767619D44A844A1 /* BlowAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlowAnalyzer.swift; sourceTree = "<group>"; };
 		C4769EAEF04F9CD64AF9260F /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
@@ -97,7 +99,8 @@
 			isa = PBXGroup;
 			children = (
 				1E84C18768F462817E2D1B09 /* FlameView.swift */,
-				63F86A06483CF220BCF6F4FA /* CandleBody.swift */,
+				597967F1F5AB3D6D51C4EBA9 /* Candle.swift */,
+				146C6EDE9E04AF50494C3774 /* Cake.swift */,
 				63CCB55B5C2DBBA5AA976FF7 /* Effects.swift */,
 				3F97EB5A9854AFCCC78CF24D /* MatchStick.swift */,
 				D2F53900D8EED9ED493BBBE0 /* SceneDecor.swift */,
@@ -183,7 +186,8 @@
 				42CFF19116B52AA351D9B7A0 /* MicrophoneLevelMonitor.swift in Sources */,
 				306B134A121E97E69C434ED1 /* BirthdaySongPlayer.swift in Sources */,
 				83BEE04301E1BD2D0C1B9955 /* FlameView.swift in Sources */,
-				E9B2E8D53A4C2462B8A60A89 /* CandleBody.swift in Sources */,
+				4AE0B208B32C69FBD1BA8495 /* Candle.swift in Sources */,
+				0E00B192BDB03A41DB2CC55F /* Cake.swift in Sources */,
 				92C42F6F46A94B3D66CEDDDD /* Effects.swift in Sources */,
 				8FECC27E2EFFA20F23F0F4A4 /* MatchStick.swift in Sources */,
 				32048156C021CF49976460A7 /* SceneDecor.swift in Sources */,

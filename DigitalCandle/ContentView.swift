@@ -5,25 +5,41 @@ import UIKit
 struct SceneLayout {
     let size: CGSize
 
-    static let matchAngle = Angle.degrees(-32)
+    static let matchAngle = Angle.degrees(-22)
 
     var midX: CGFloat { size.width / 2 }
-    var candleWidth: CGFloat { min(size.width * 0.3, 130) }
-    var candleHeight: CGFloat { min(size.height * 0.34, 280) }
-    var candleBottom: CGFloat { size.height * 0.8 }
+
+    var cakeWidth: CGFloat { min(size.width * 0.6, 280) }
+    var cakeTopHeight: CGFloat { cakeWidth * BirthdayCake.topRatio }
+    var cakeSideHeight: CGFloat { cakeWidth * BirthdayCake.sideRatio }
+    /// Lowest point of the cake, at the front of its bottom edge.
+    var cakeBottom: CGFloat { size.height * 0.8 }
+    /// Top of the cake's outline; the middle of its top surface is half the top's height lower.
+    var cakeTop: CGFloat { cakeBottom - cakeSideHeight - cakeTopHeight }
+    /// Center of the cake view, which also holds the plate around the cake.
+    var cakeCenter: CGPoint {
+        let origin = BirthdayCake.cakeOrigin(cakeWidth: cakeWidth)
+        let viewSize = BirthdayCake.canvasSize(cakeWidth: cakeWidth)
+        return CGPoint(x: midX + viewSize.width / 2 - origin.x - cakeWidth / 2, y: cakeTop - origin.y + viewSize.height / 2)
+    }
+
+    /// The candle stands in the middle of the cake's top.
+    var candleWidth: CGFloat { cakeWidth * 0.1 }
+    var candleHeight: CGFloat { min(size.height * 0.19, 150) }
+    var candleCapHeight: CGFloat { candleWidth * BirthdayCandle.capRatio }
+    var candleBottom: CGFloat { cakeTop + cakeTopHeight / 2 + candleCapHeight / 2 + 2 }
     var candleTop: CGFloat { candleBottom - candleHeight }
-    var capHeight: CGFloat { candleWidth * CandleBody.capRatio }
-    var wickHeight: CGFloat { 16 }
+    var wickHeight: CGFloat { 12 }
     /// Where the wick stands: the middle of the candle's top surface.
-    var wickBase: CGPoint { CGPoint(x: midX, y: candleTop + capHeight * 0.55) }
+    var wickBase: CGPoint { CGPoint(x: midX, y: candleTop + candleCapHeight / 2) }
     var wickTip: CGPoint { CGPoint(x: midX, y: wickBase.y - wickHeight) }
-    var flameSize: CGSize { CGSize(width: candleWidth * 0.34, height: candleWidth * 0.95) }
+    var flameSize: CGSize { CGSize(width: candleWidth * 1.5, height: candleWidth * 3.9) }
     /// The flame's base wraps around the top half of the wick.
     var flameCenter: CGPoint { CGPoint(x: midX, y: wickTip.y + wickHeight * 0.45 - flameSize.height / 2) }
     var flameTop: CGFloat { flameCenter.y - flameSize.height / 2 }
     var titleCenter: CGPoint { CGPoint(x: midX, y: max(size.height * 0.13, 70)) }
     var hintCenter: CGPoint { CGPoint(x: midX, y: size.height * 0.905) }
-    var matchCenter: CGPoint { CGPoint(x: size.width - max(56, size.width * 0.16), y: candleBottom - 34) }
+    var matchCenter: CGPoint { CGPoint(x: size.width - max(38, size.width * 0.1), y: cakeBottom - cakeSideHeight * 0.75) }
 
     /// Where the match head is when the middle of the match is at `center`.
     func matchHead(center: CGPoint) -> CGPoint {
@@ -119,14 +135,14 @@ struct ContentView: View {
     @ViewBuilder
     private func candle(_ layout: SceneLayout) -> some View {
         let glow = model.isLit ? 1.0 : 0.0
-        CandleDish(width: layout.candleWidth * 1.8, glow: glow)
+        BirthdayCake(width: layout.cakeWidth, glow: glow)
             .animation(.easeInOut(duration: 0.7), value: glow)
-            .position(x: layout.midX, y: layout.candleBottom - layout.capHeight * 0.15)
-        CandleBody(width: layout.candleWidth, height: layout.candleHeight, glow: glow)
+            .position(layout.cakeCenter)
+        BirthdayCandle(width: layout.candleWidth, height: layout.candleHeight, glow: glow)
             .animation(.easeInOut(duration: 0.7), value: glow)
             .position(x: layout.midX, y: layout.candleTop + layout.candleHeight / 2)
         Wick(isLit: model.isLit)
-            .frame(width: 6, height: layout.wickHeight)
+            .frame(width: 5, height: layout.wickHeight)
             .position(x: layout.midX, y: layout.wickBase.y - layout.wickHeight / 2)
         ZStack {
             if model.isLit {
@@ -138,11 +154,11 @@ struct ContentView: View {
         }
         .frame(width: layout.flameSize.width, height: layout.flameSize.height)
         .position(layout.flameCenter)
-        // The whole candle is a big tap target for lighting it.
+        // The candle and the cake are one big tap target for lighting it.
         Color.clear
             .contentShape(Rectangle())
-            .frame(width: layout.candleWidth * 1.5, height: layout.candleBottom - layout.flameTop)
-            .position(x: layout.midX, y: (layout.flameTop + layout.candleBottom) / 2)
+            .frame(width: layout.cakeWidth, height: layout.cakeBottom - layout.flameTop)
+            .position(x: layout.midX, y: (layout.flameTop + layout.cakeBottom) / 2)
             .onTapGesture(perform: candleTapped)
             .accessibilityElement()
             .accessibilityLabel(model.isLit ? "燃烧中的蜡烛" : "蜡烛")
