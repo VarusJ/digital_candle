@@ -38,21 +38,10 @@ jobs:
       - name: Take screenshots in the Simulator
         run: scripts/take-screenshots.sh build/Build/Products/Debug-iphonesimulator/DigitalCandle.app screenshots
 
-      - name: Print screenshot previews
-        if: always()
-        run: |
-          for f in screenshots/*.png; do
-            [ -e "$f" ] || continue
-            sips -Z 1200 -s format jpeg -s formatOptions 70 "$f" --out "${f%.png}.jpg" >/dev/null
-            echo "BEGIN-PREVIEW $(basename "${f%.png}")"
-            base64 -b 1000 -i "${f%.png}.jpg"
-            echo "END-PREVIEW"
-          done
-
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v5
         with:
           name: screenshots
-          path: screenshots/*.png
+          path: screenshots
           if-no-files-found: ignore
