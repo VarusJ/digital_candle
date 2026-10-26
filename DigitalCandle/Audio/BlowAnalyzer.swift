@@ -12,7 +12,7 @@ struct BlowAnalyzer {
     static let loudDecibels: Float = -5
 
     /// 0 needs a strong blow, 1 reacts to a gentle breath.
-    var sensitivity = 0.5
+    var sensitivity = 0.6
     /// How long the level has to stay above the threshold to count as blowing.
     var requiredDuration: TimeInterval = 0.25
     /// Readings right after the microphone starts only calibrate the background level.

@@ -42,7 +42,8 @@ shoot() {
   local name="$1" wait="$2"
   shift 2
   xcrun simctl terminate "$UDID" "$BUNDLE_ID" >/dev/null 2>&1 || true
-  xcrun simctl launch "$UDID" "$BUNDLE_ID" "$@"
+  # ${@+"$@"}: macOS bash 3.2 treats an empty "$@" as unbound under set -u.
+  xcrun simctl launch "$UDID" "$BUNDLE_ID" ${@+"$@"}
   sleep "$wait"
   xcrun simctl io "$UDID" screenshot "$OUT_DIR/$name.png"
 }

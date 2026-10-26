@@ -26,13 +26,15 @@ final class CandleModel {
     /// When the candle was last blown out; starts the smoke and the confetti.
     private(set) var blownOutAt: Date?
 
-    var sensitivity = 0.5
+    var sensitivity = 0.6
     var playsBirthdaySong = true
 
     private let monitor = MicrophoneLevelMonitor()
     private let song = BirthdaySongPlayer()
     @ObservationIgnored private var analyzer = BlowAnalyzer()
     @ObservationIgnored private var songTask: Task<Void, Never>?
+    /// Whether this burn listens for a blow (always, except in screenshot demos).
+    @ObservationIgnored private var listensForBlow = true
 
     var isLit: Bool { phase == .lit }
 
@@ -51,6 +53,7 @@ final class CandleModel {
         loudness = 0
         Haptics.ignite()
         UIApplication.shared.isIdleTimerDisabled = true
+        listensForBlow = listening
         if listening {
             startListening()
         }
@@ -77,7 +80,7 @@ final class CandleModel {
     func scenePhaseChanged(to scenePhase: ScenePhase) {
         switch scenePhase {
         case .active:
-            if phase == .lit, microphone != .listening {
+            if phase == .lit, listensForBlow, microphone != .listening {
                 startListening()
             }
         case .background:

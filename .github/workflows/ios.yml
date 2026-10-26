@@ -19,7 +19,7 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Show Xcode version
         run: xcodebuild -version
@@ -43,7 +43,7 @@ jobs:
         run: |
           for f in screenshots/*.png; do
             [ -e "$f" ] || continue
-            sips -Z 560 -s format jpeg -s formatOptions 55 "$f" --out "${f%.png}.jpg" >/dev/null
+            sips -Z 1200 -s format jpeg -s formatOptions 70 "$f" --out "${f%.png}.jpg" >/dev/null
             echo "BEGIN-PREVIEW $(basename "${f%.png}")"
             base64 -b 1000 -i "${f%.png}.jpg"
             echo "END-PREVIEW"
@@ -51,7 +51,7 @@ jobs:
 
       - name: Upload screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: screenshots
           path: screenshots/*.png

@@ -9,7 +9,7 @@ struct SceneLayout {
 
     var midX: CGFloat { size.width / 2 }
     var candleWidth: CGFloat { min(size.width * 0.3, 130) }
-    var candleHeight: CGFloat { min(size.height * 0.3, 250) }
+    var candleHeight: CGFloat { min(size.height * 0.34, 280) }
     var candleBottom: CGFloat { size.height * 0.8 }
     var candleTop: CGFloat { candleBottom - candleHeight }
     var capHeight: CGFloat { candleWidth * CandleBody.capRatio }
@@ -17,7 +17,7 @@ struct SceneLayout {
     /// Where the wick stands: the middle of the candle's top surface.
     var wickBase: CGPoint { CGPoint(x: midX, y: candleTop + capHeight * 0.55) }
     var wickTip: CGPoint { CGPoint(x: midX, y: wickBase.y - wickHeight) }
-    var flameSize: CGSize { CGSize(width: candleWidth * 0.3, height: candleWidth * 0.86) }
+    var flameSize: CGSize { CGSize(width: candleWidth * 0.34, height: candleWidth * 0.95) }
     /// The flame's base wraps around the top half of the wick.
     var flameCenter: CGPoint { CGPoint(x: midX, y: wickTip.y + wickHeight * 0.45 - flameSize.height / 2) }
     var flameTop: CGFloat { flameCenter.y - flameSize.height / 2 }
@@ -37,7 +37,7 @@ struct ContentView: View {
     @State private var model = CandleModel()
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
-    @AppStorage("blowSensitivity") private var sensitivity = 0.5
+    @AppStorage("blowSensitivity") private var sensitivity = 0.6
     @AppStorage("playsBirthdaySong") private var playsBirthdaySong = true
     @State private var showsSettings = false
     @State private var celebrationStart: Date?

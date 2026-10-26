@@ -150,19 +150,28 @@ struct FlameView: View {
         }
     }
 
+    /// Light around the flame: a wide warm glow plus a brighter aura close to the flame.
     private func halo(flameHeight: CGFloat, glow: CGFloat) -> some View {
         let diameter = flameHeight * haloScale
-        return Circle()
-            .fill(RadialGradient(
-                stops: [
-                    .init(color: Color(red: 1, green: 0.66, blue: 0.3).opacity(0.5), location: 0),
-                    .init(color: Color(red: 1, green: 0.5, blue: 0.16).opacity(0.17), location: 0.35),
-                    .init(color: Color(red: 1, green: 0.4, blue: 0.1).opacity(0), location: 1),
-                ],
-                center: .center, startRadius: 0, endRadius: diameter / 2))
-            .frame(width: diameter, height: diameter)
-            .opacity(Double(min(max(0.85 * glow, 0), 1)))
-            .offset(y: diameter / 2 - flameHeight * 0.35)
-            .blendMode(.plusLighter)
+        let auraDiameter = flameHeight * 1.6
+        return ZStack {
+            Circle()
+                .fill(RadialGradient(
+                    stops: [
+                        .init(color: Color(red: 1, green: 0.66, blue: 0.3).opacity(0.5), location: 0),
+                        .init(color: Color(red: 1, green: 0.5, blue: 0.16).opacity(0.17), location: 0.35),
+                        .init(color: Color(red: 1, green: 0.4, blue: 0.1).opacity(0), location: 1),
+                    ],
+                    center: .center, startRadius: 0, endRadius: diameter / 2))
+                .frame(width: diameter, height: diameter)
+            Circle()
+                .fill(RadialGradient(
+                    colors: [Color(red: 1, green: 0.78, blue: 0.45).opacity(0.35), Color(red: 1, green: 0.6, blue: 0.25).opacity(0)],
+                    center: .center, startRadius: 0, endRadius: auraDiameter / 2))
+                .frame(width: auraDiameter, height: auraDiameter)
+        }
+        .opacity(Double(min(max(0.85 * glow, 0), 1)))
+        .offset(y: diameter / 2 - flameHeight * 0.35)
+        .blendMode(.plusLighter)
     }
 }

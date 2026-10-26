@@ -26,6 +26,38 @@ struct CylinderSide: Shape {
     }
 }
 
+/// A drop of wax running down the side: a narrow neck at the top and a rounded end.
+struct DripShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let width = rect.width
+        let radius = width / 2
+        let k: CGFloat = 0.5523
+        let bulbY = rect.maxY - radius
+        let neckY = rect.minY + (bulbY - rect.minY) * 0.55
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + width * 0.18, y: rect.minY))
+        path.addLine(to: CGPoint(x: rect.maxX - width * 0.18, y: rect.minY))
+        path.addCurve(
+            to: CGPoint(x: rect.maxX, y: bulbY),
+            control1: CGPoint(x: rect.maxX - width * 0.2, y: neckY),
+            control2: CGPoint(x: rect.maxX, y: bulbY - radius))
+        path.addCurve(
+            to: CGPoint(x: rect.midX, y: rect.maxY),
+            control1: CGPoint(x: rect.maxX, y: bulbY + radius * k),
+            control2: CGPoint(x: rect.midX + radius * k, y: rect.maxY))
+        path.addCurve(
+            to: CGPoint(x: rect.minX, y: bulbY),
+            control1: CGPoint(x: rect.midX - radius * k, y: rect.maxY),
+            control2: CGPoint(x: rect.minX, y: bulbY + radius * k))
+        path.addCurve(
+            to: CGPoint(x: rect.minX + width * 0.18, y: rect.minY),
+            control1: CGPoint(x: rect.minX, y: bulbY - radius),
+            control2: CGPoint(x: rect.minX + width * 0.2, y: neckY))
+        path.closeSubpath()
+        return path
+    }
+}
+
 /// An ivory pillar candle with a melted top and a few wax drips.
 struct CandleBody: View, Animatable {
     /// Height of the top surface relative to the candle's width.
@@ -56,9 +88,8 @@ struct CandleBody: View, Animatable {
                         .init(color: .black.opacity(0.3), location: 1),
                     ],
                     startPoint: .top, endPoint: .bottom))
-            drip(at: -0.27, length: 0.17, thickness: 0.085)
-            drip(at: 0.06, length: 0.09, thickness: 0.07)
-            drip(at: 0.33, length: 0.13, thickness: 0.075)
+            drip(at: -0.24, length: 0.16, thickness: 0.1)
+            drip(at: 0.3, length: 0.1, thickness: 0.085)
             Ellipse()
                 .fill(LinearGradient(
                     colors: [Color(red: 0.84, green: 0.76, blue: 0.64), Color(red: 0.98, green: 0.94, blue: 0.86)],
@@ -79,7 +110,7 @@ struct CandleBody: View, Animatable {
                 .offset(y: capHeight * 0.24)
         }
         .frame(width: width, height: height, alignment: .top)
-        .colorMultiply(Color(red: 0.42 + 0.58 * glow, green: 0.4 + 0.56 * glow, blue: 0.42 + 0.46 * glow))
+        .colorMultiply(Color(red: 0.55 + 0.45 * glow, green: 0.5 + 0.46 * glow, blue: 0.47 + 0.41 * glow))
     }
 
     /// A wax drip running down the front, starting under the rim of the top.
@@ -87,9 +118,9 @@ struct CandleBody: View, Animatable {
         let x = position * width
         let halfWidth = width / 2
         let rimY = capHeight / 2 * (1 + sqrt(max(0, 1 - x * x / (halfWidth * halfWidth))))
-        return Capsule()
+        return DripShape()
             .fill(LinearGradient(
-                colors: [Color(red: 1, green: 0.98, blue: 0.94), Color(red: 0.88, green: 0.8, blue: 0.68)],
+                colors: [Color(red: 0.99, green: 0.96, blue: 0.9), Color(red: 0.86, green: 0.78, blue: 0.66)],
                 startPoint: .leading, endPoint: .trailing))
             .frame(width: width * thickness, height: height * length)
             .offset(x: x, y: rimY - capHeight * 0.35)
@@ -144,9 +175,9 @@ struct CandleDish: View, Animatable {
         ZStack {
             Ellipse()
                 .fill(RadialGradient(
-                    colors: [Color(red: 1, green: 0.6, blue: 0.25).opacity(0.28 * glow), .clear],
-                    center: .center, startRadius: 0, endRadius: width * 0.95))
-                .frame(width: width * 2.2, height: height * 2.4)
+                    colors: [Color(red: 1, green: 0.6, blue: 0.25).opacity(0.2 * glow), .clear],
+                    center: .center, startRadius: 0, endRadius: width * 0.8))
+                .frame(width: width * 1.7, height: height * 1.9)
             Ellipse()
                 .fill(Color.black.opacity(0.55))
                 .frame(width: width * 1.04, height: height * 1.1)
@@ -169,6 +200,6 @@ struct CandleDish: View, Animatable {
                 .frame(width: width * 0.86, height: height * 0.66)
                 .offset(y: -height * 0.07)
         }
-        .colorMultiply(Color(red: 0.45 + 0.55 * glow, green: 0.42 + 0.58 * glow, blue: 0.42 + 0.5 * glow))
+        .colorMultiply(Color(red: 0.5 + 0.5 * glow, green: 0.46 + 0.54 * glow, blue: 0.44 + 0.48 * glow))
     }
 }
