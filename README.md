@@ -17,21 +17,25 @@
 
 ## 运行要求
 
-- 一台装了 Xcode 16 或更新版本的 Mac
-- iOS 17 或更新版本的 iPhone。模拟器也能跑，会用 Mac 的麦克风。
+- 一台 Mac，装好最新版 Xcode。Xcode 要能支持你手机的系统版本，比如手机是 iOS 26，就要用 Xcode 26。
+- iOS 17 或更新版本的 iPhone。没有 iPhone 的话，模拟器也能跑，会用 Mac 的麦克风。
 
 ## 装到 iPhone 上
 
-1. 用 Xcode 打开 `DigitalCandle.xcodeproj`。
-2. 在左侧点项目，选中 TARGETS 里的 **DigitalCandle**，进入 **Signing & Capabilities**。**Team** 选你自己的 Apple ID（没有就点 Add Account 登录，免费账号也行）。
-   如果提示 Bundle Identifier 已被占用，把 `com.varusj.DigitalCandle` 改成别的名字，比如在后面加点字母。
-3. 用数据线把 iPhone 连到 Mac，在 Xcode 顶部选中你的 iPhone，按 ⌘R 运行。
-4. 第一次运行可能还要做两件事：
-   - 在 iPhone 上打开「设置 → 隐私与安全性 → 开发者模式」，按提示重启手机。
-   - 如果提示“不受信任的开发者”，到「设置 → 通用 → VPN 与设备管理」里信任你的开发者证书。
-5. 打开 App，第一次点燃蜡烛时允许使用麦克风。
+iPhone 不能直接从网上装自己编译的 App，要通过 Mac 上的 Xcode 装进去。免费的 Apple ID 就够了，不需要付费的开发者账号。
 
-> 用免费 Apple ID 装的 App 7 天后会过期，到时候用 Xcode 再运行一次就好。
+1. **装 Xcode**：在 Mac 的 App Store 里搜 Xcode，装最新版。
+2. **下载代码**：在 GitHub 上打开这个仓库，切到 `claude/ios-digital-candle-app-2vzyxo` 分支，点绿色的 **Code → Download ZIP**，然后解压。会用 git 的话直接 clone 也行。
+3. **打开项目**：双击 `DigitalCandle.xcodeproj`，会用 Xcode 打开。
+4. **签名**：在左侧点项目，选中 TARGETS 里的 **DigitalCandle**，进入 **Signing & Capabilities**。**Team** 选你自己的 Apple ID（没有就点 Add Account 登录）。
+   如果提示 Bundle Identifier 已被占用，把 `com.varusj.DigitalCandle` 改成别的名字，比如在后面加几个字母。
+5. **连上手机**：用数据线把 iPhone 连到 Mac，手机上弹出“要信任此电脑吗”时点信任。
+6. **打开开发者模式**：在 iPhone 上打开「设置 → 隐私与安全性 → 开发者模式」，按提示重启手机。这个开关要在手机连过 Xcode 之后才会出现。
+7. **运行**：在 Xcode 顶部的设备列表里选中你的 iPhone，按 ⌘R（或者点 ▶）。第一次要等几分钟让 Xcode 准备手机。如果 Mac 弹窗要钥匙串密码，输入 Mac 的开机密码，点“始终允许”。
+8. **信任开发者**：如果手机提示“不受信任的开发者”，到「设置 → 通用 → VPN 与设备管理」里点你的 Apple ID，选信任，然后回 Xcode 再按一次 ⌘R。
+9. 打开 App，第一次点燃蜡烛时允许使用麦克风。
+
+> 装好以后就不用连着数据线了。用免费 Apple ID 装的 App 7 天后会过期，到时候再连上 Mac，用 Xcode 运行一次就好。
 
 ## 怎么玩
 
