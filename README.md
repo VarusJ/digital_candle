@@ -15,6 +15,18 @@
 - **设置**：右上角可以调吹气灵敏度，也可以关掉生日歌。
 - **隐私**：只有蜡烛燃烧时才会打开麦克风。声音只在手机上实时算一下音量，不录音、不保存、不联网。
 
+## 网页版（不用 Mac）
+
+`docs/index.html` 是功能一样的网页版：用手机 Safari 打开就能点蜡烛、吹蜡烛，不用装任何东西。打开 GitHub Pages 以后，地址是 https://varusj.github.io/digital_candle/ 。
+
+打开 GitHub Pages：
+
+1. 免费账号的私有仓库用不了 Pages，所以要先把仓库改成公开：**Settings → General**，拉到最下面的 Danger Zone，点 **Change visibility**，选 Public。
+2. 进入 **Settings → Pages**，在 Build and deployment 里，Source 选 **Deploy from a branch**，Branch 选 `claude/ios-digital-candle-app-2vzyxo`，文件夹选 `/docs`，点 **Save**。
+3. 等一两分钟，用手机 Safari 打开上面的地址。第一次点燃蜡烛时，允许使用麦克风。
+
+在 Safari 里点分享按钮，选「添加到主屏幕」，以后就能像 App 一样从桌面打开，而且是全屏的。
+
 ## 运行要求
 
 - 一台 Mac，装好最新版 Xcode。Xcode 要能支持你手机的系统版本，比如手机是 iOS 26，就要用 Xcode 26。
@@ -74,6 +86,8 @@ DigitalCandle/
     ├── MatchStick.swift              火柴
     └── SceneDecor.swift              背景、标题、提示文字、力度条
 ```
+
+网页版的全部代码都在 `docs/index.html` 这一个文件里。
 
 ## 自动构建
 

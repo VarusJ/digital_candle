@@ -1,0 +1,1043 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="电子蜡烛">
+<meta name="theme-color" content="#080506">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>电子蜡烛</title>
+<style>
+  /* One dark room, lit only by the candle. Script face for the greeting, system sans for everything else. */
+  :root {
+    --room: #080506;
+    --glow: rgb(43, 23, 15);
+    --gold-hi: #ffe6a8;
+    --gold-lo: #f2ad57;
+    --ink: #ffedd1;
+    --ink-muted: rgba(255, 255, 255, 0.55);
+    --sheet: #1f1618;
+    --sheet-line: rgba(255, 255, 255, 0.1);
+    --accent: #ff9d4d;
+    --script: "Snell Roundhand", "Apple Chancery", "URW Chancery L", "Segoe Script", cursive;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans CJK SC", "Microsoft YaHei", sans-serif;
+    color-scheme: dark;
+  }
+  [hidden] { display: none !important; }
+  html, body { height: 100%; margin: 0; background: var(--room); overflow: hidden; }
+  body {
+    font-family: var(--sans);
+    color: var(--ink);
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+  }
+  #stage { position: fixed; inset: 0; overflow: hidden; }
+  .layer { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #roomGlow {
+    background: radial-gradient(480px circle at 50% 42%, var(--glow), transparent);
+    opacity: 0.45;
+    transition: opacity 0.8s ease-in-out;
+  }
+  #bokeh { opacity: 0.55; transition: opacity 0.8s ease-in-out; }
+  #scene { filter: brightness(0.55) saturate(0.9); transition: filter 0.7s ease-in-out; }
+  #emberDot { opacity: 0; transition: opacity 0.3s; }
+  body.lit #roomGlow, body.lit #bokeh { opacity: 1; }
+  body.lit #scene { filter: none; }
+  body.lit #emberDot { opacity: 1; }
+
+  #safeArea {
+    position: fixed; inset: 0; visibility: hidden; pointer-events: none;
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+
+  #title {
+    position: absolute; left: 0; width: 100%;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    transform: translateY(-50%);
+    opacity: 1;
+    transition: opacity 0.6s, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.6s;
+    filter: drop-shadow(0 0 8px rgba(255, 140, 51, 0.4));
+    pointer-events: none;
+  }
+  #title .en {
+    font-family: var(--script);
+    font-weight: 700;
+    font-size: 46px;
+    line-height: 1.15;
+    background: linear-gradient(180deg, var(--gold-hi), var(--gold-lo));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    padding: 0 8px;
+  }
+  #title .zh {
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: 0.35em;
+    margin-right: -0.35em;
+    color: var(--gold-hi);
+  }
+  body.unlit #title { opacity: 0.55; }
+  body.blownOut #title { transform: translateY(-50%) scale(1.1); filter: drop-shadow(0 0 16px rgba(255, 140, 51, 0.9)); }
+
+  #hint {
+    position: absolute; left: 50%;
+    width: calc(100% - 48px); max-width: 420px;
+    transform: translate(-50%, -50%);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    text-align: center;
+  }
+  #hintMain { font-size: 17px; font-weight: 500; letter-spacing: 0.02em; }
+  #hintDetail { font-size: 13px; color: var(--ink-muted); line-height: 1.45; }
+  #meter { display: flex; align-items: center; gap: 8px; height: 14px; }
+  #meter svg { width: 14px; height: 14px; }
+  #meterTrack { width: 140px; height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.12); overflow: hidden; }
+  #meterFill {
+    width: 100%; height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, #ffd973, #ff7333);
+    transform-origin: left center; transform: scaleX(0.04);
+    transition: transform 0.12s ease-out;
+  }
+
+  #tapTarget { position: absolute; cursor: pointer; }
+  #match {
+    position: absolute; width: 70px; height: 110px;
+    touch-action: none; cursor: grab;
+    transition: opacity 0.25s ease-out;
+  }
+  #match.returning { transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1), opacity 0.25s ease-out; }
+  #match.hidden { opacity: 0; pointer-events: none; }
+  #match svg { position: absolute; left: 28px; top: 5px; width: 14px; height: 100px; transform: rotate(-22deg); }
+  #matchFlame { position: absolute; pointer-events: none; overflow: visible; }
+
+  button { font: inherit; color: inherit; }
+  #settingsButton {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 4px);
+    right: calc(env(safe-area-inset-right, 0px) + 8px);
+    width: 44px; height: 44px;
+    display: grid; place-items: center;
+    background: none; border: 0; border-radius: 22px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+  }
+  #settingsButton:focus-visible, .sheet button:focus-visible, .sheet input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  #backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    margin: 0 auto; max-width: 520px;
+    background: var(--sheet);
+    border-radius: 18px 18px 0 0;
+    padding-block: 18px calc(env(safe-area-inset-bottom, 0px) + 22px);
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+    display: flex; flex-direction: column; gap: 18px;
+    touch-action: manipulation;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.5);
+  }
+  .sheet header { display: flex; align-items: center; justify-content: space-between; }
+  .sheet h2 { margin: 0; font-size: 17px; font-weight: 600; }
+  .sheet .done { background: none; border: 0; color: var(--accent); font-weight: 600; font-size: 16px; padding: 8px 4px; cursor: pointer; }
+  .sheet section { display: flex; flex-direction: column; gap: 10px; padding-top: 14px; border-top: 1px solid var(--sheet-line); }
+  .sheet label.title { font-size: 15px; font-weight: 500; }
+  .slider-row { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-muted); }
+  .slider-row input { flex: 1; min-width: 0; accent-color: var(--accent); }
+  .sheet p { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-muted); }
+  .toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
+  .toggle-row input { width: 22px; height: 22px; accent-color: var(--accent); }
+
+  .settings-link {
+    background: rgba(255, 157, 77, 0.16); border: 1px solid rgba(255, 157, 77, 0.4);
+    color: var(--gold-hi); font-size: 13px; font-weight: 600;
+    padding: 6px 14px; border-radius: 16px; cursor: pointer;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #title, #scene, #roomGlow, #bokeh, #match.returning { transition-duration: 0.01s; }
+  }
+</style>
+</head>
+<body class="unlit">
+<div id="safeArea"></div>
+<div id="stage">
+  <div id="roomGlow" class="layer"></div>
+  <svg id="bokeh" class="layer" aria-hidden="true"></svg>
+  <svg id="scene" class="layer" aria-hidden="true"></svg>
+  <svg id="flameLayer" class="layer" aria-hidden="true"></svg>
+  <canvas id="effects" class="layer" aria-hidden="true"></canvas>
+  <div id="title" aria-label="Happy Birthday，生日快乐">
+    <div class="en">Happy Birthday</div>
+    <div class="zh">生日快乐</div>
+  </div>
+  <div id="tapTarget" role="button" aria-label="蜡烛，轻点点燃"></div>
+  <div id="hint" aria-live="polite">
+    <div id="hintMain"></div>
+    <div id="hintDetail"></div>
+    <div id="meter" hidden aria-label="吹气力度">
+      <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7"/></svg>
+      <div id="meterTrack"><div id="meterFill"></div></div>
+    </div>
+  </div>
+  <div id="match" aria-hidden="true">
+    <svg viewBox="0 0 14 100">
+      <defs>
+        <linearGradient id="matchWood" x1="0" x2="1"><stop offset="0" stop-color="#f2d49e"/><stop offset="1" stop-color="#c79e66"/></linearGradient>
+        <radialGradient id="matchHead" cx="0.35" cy="0.3" r="0.7"><stop offset="0" stop-color="#eb4d38"/><stop offset="1" stop-color="#80140f"/></radialGradient>
+      </defs>
+      <rect x="4.25" y="10" width="5.5" height="90" rx="1.5" fill="url(#matchWood)"/>
+      <ellipse cx="7" cy="8" rx="5" ry="7.5" fill="url(#matchHead)"/>
+    </svg>
+  </div>
+  <svg id="matchFlame" aria-hidden="true"></svg>
+  <button id="settingsButton" aria-label="设置">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+  </button>
+</div>
+
+<div id="backdrop" hidden></div>
+<div id="settingsSheet" class="sheet" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+  <header>
+    <h2 id="settingsTitle">设置</h2>
+    <button class="done" id="settingsDone">完成</button>
+  </header>
+  <section>
+    <label class="title" for="sensitivity">吹气灵敏度</label>
+    <div class="slider-row">
+      <span>用力吹</span>
+      <input id="sensitivity" type="range" min="0" max="1" step="0.01">
+      <span>轻轻吹</span>
+    </div>
+    <p>吹不灭就往右调；说话、唱歌就把蜡烛吹灭了，就往左调。手机的麦克风在底部，对着底部吹最灵敏。</p>
+  </section>
+  <section>
+    <div class="toggle-row">
+      <label for="song">吹灭后播放生日歌</label>
+      <input id="song" type="checkbox">
+    </div>
+    <p>手机开着静音时可能不会出声。</p>
+  </section>
+  <section>
+    <p>麦克风只用来感应你有没有在吹气，声音只在这台手机上算一下音量，不会录下、保存或上传。</p>
+  </section>
+</div>
+
+<noscript><p style="position:fixed;inset:auto 0 40%;text-align:center;color:#ffedd1">这个页面需要打开 JavaScript 才能点蜡烛。</p></noscript>
+
+<script>
+(() => {
+  'use strict';
+
+  const $ = (id) => document.getElementById(id);
+  const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+  const SVGNS = 'http://www.w3.org/2000/svg';
+
+  // ---------------------------------------------------------------- settings
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem(key); return v === null ? fallback : JSON.parse(v); } catch (e) { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* private mode: keep it for this visit only */ }
+    },
+  };
+  const settings = {
+    sensitivity: clamp(Number(store.get('candle.sensitivity', 0.6)) || 0, 0, 1),
+    song: store.get('candle.song', true) !== false,
+  };
+
+  // ---------------------------------------------------------------- layout
+  // Same proportions as the iOS app: a cake in the lower middle, the candle standing in it.
+  let L;
+  function computeLayout() {
+    const safe = getComputedStyle($('safeArea'));
+    const top = parseFloat(safe.paddingTop) || 0;
+    const bottom = parseFloat(safe.paddingBottom) || 0;
+    const W = window.innerWidth, H = window.innerHeight;
+    const SH = Math.max(H - top - bottom, 320);
+    const midX = W / 2;
+    const cakeW = Math.min(W * 0.6, 280), cakeTopH = cakeW * 0.3, cakeSideH = cakeW * 0.36;
+    const cakeBottom = top + SH * 0.8;
+    const cakeFrameTop = cakeBottom - cakeTopH - cakeSideH;
+    const cakeTopY = cakeFrameTop + cakeTopH / 2;
+    const cw = cakeW * 0.1, capH = cw * 0.32, ch = Math.min(SH * 0.19, 150);
+    const candleBottom = cakeTopY + capH / 2 + 2, candleTop = candleBottom - ch;
+    const wickH = 12;
+    const wickBase = { x: midX, y: candleTop + capH / 2 };
+    const wickTip = { x: midX, y: wickBase.y - wickH };
+    const fw = cw * 1.5, fh = cw * 3.9;
+    const flameCenter = { x: midX, y: wickTip.y + wickH * 0.45 - fh / 2 };
+    return {
+      W, H, top, SH, midX, cakeW, cakeTopH, cakeSideH, cakeBottom, cakeFrameTop, cakeTopY,
+      cw, capH, ch, candleBottom, candleTop, wickH, wickBase, wickTip, fw, fh, flameCenter,
+      flameTop: flameCenter.y - fh / 2,
+      title: { x: midX, y: top + Math.max(SH * 0.13, 70) },
+      hint: { x: midX, y: top + SH * 0.905 },
+      match: { x: W - Math.max(38, W * 0.1), y: cakeBottom - cakeSideH * 0.75 },
+    };
+  }
+
+  const MATCH_ANGLE = -22 * Math.PI / 180;
+  // The match head is 42pt above the middle of the 100pt match, before rotation.
+  function matchHead(cx, cy) {
+    const offset = 8 - 50;
+    return { x: cx - offset * Math.sin(MATCH_ANGLE), y: cy + offset * Math.cos(MATCH_ANGLE) };
+  }
+
+  // ---------------------------------------------------------------- drawing helpers
+  const rgb = (r, g, b, a = 1) => `rgba(${Math.round(clamp(r, 0, 1) * 255)},${Math.round(clamp(g, 0, 1) * 255)},${Math.round(clamp(b, 0, 1) * 255)},${a})`;
+  // Repeatable pseudo-random numbers in 0..1, so the sprinkles stay where they are.
+  const noise = (i, k) => { const v = Math.sin(i * 12.9898 + k * 78.233) * 43758.5453; return v - Math.floor(v); };
+  // The warm tint of a room lit by the candle (the iOS app multiplies colours the same way).
+  const warm = (r, g, b, a = 1) => rgb(r, g * 0.96, b * 0.9, a);
+
+  function cylinderSide(x0, y0, w, h, capH) {
+    const r = capH / 2, k = 0.5523, hw = w / 2, mx = x0 + hw, bot = y0 + h;
+    return `M${x0},${y0 + r} L${x0},${bot - r} C${x0},${bot - r + r * k} ${mx - hw * k},${bot} ${mx},${bot} ` +
+      `C${mx + hw * k},${bot} ${x0 + w},${bot - r + r * k} ${x0 + w},${bot - r} L${x0 + w},${y0 + r} Z`;
+  }
+  function drip(x0, y0, w, h) {
+    const r = w / 2, k = 0.5523, by = y0 + h - r, ny = y0 + (by - y0) * 0.55;
+    return `M${x0 + w * 0.18},${y0} L${x0 + w - w * 0.18},${y0} C${x0 + w - w * 0.2},${ny} ${x0 + w},${by - r} ${x0 + w},${by} ` +
+      `C${x0 + w},${by + r * k} ${x0 + w / 2 + r * k},${y0 + h} ${x0 + w / 2},${y0 + h} ` +
+      `C${x0 + w / 2 - r * k},${y0 + h} ${x0},${by + r * k} ${x0},${by} C${x0},${by - r} ${x0 + w * 0.2},${ny} ${x0 + w * 0.18},${y0} Z`;
+  }
+  // Stripes winding around a cylinder: each band rises half a turn from the left edge to the right.
+  function helix(x0, y0, w, h, pitch, thick, offset) {
+    let d = '';
+    const steps = 16;
+    for (let base = y0 - pitch + offset; base < y0 + h + pitch; base += pitch) {
+      const pts = [];
+      for (let i = 0; i <= steps; i++) {
+        const t = -Math.PI / 2 + Math.PI * i / steps;
+        pts.push([x0 + w / 2 + (w / 2) * Math.sin(t), base - t / (2 * Math.PI) * pitch]);
+      }
+      const back = pts.slice().reverse().map(([x, y]) => [x, y + thick]);
+      d += 'M' + pts.concat(back).map((p) => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' L') + ' Z ';
+    }
+    return d;
+  }
+  function flamePath(x0, y0, w, h, lean) {
+    const r = w / 2, bulbY = y0 + h - r, k = 0.5523, tx = x0 + w / 2 + lean * w, shift = -lean * w * 0.3;
+    return `M${tx},${y0} C${tx + w * 0.08 + shift},${y0 + h * 0.32} ${x0 + w},${bulbY - h * 0.22} ${x0 + w},${bulbY} ` +
+      `C${x0 + w},${bulbY + r * k} ${x0 + w / 2 + r * k},${y0 + h} ${x0 + w / 2},${y0 + h} ` +
+      `C${x0 + w / 2 - r * k},${y0 + h} ${x0},${bulbY + r * k} ${x0},${bulbY} ` +
+      `C${x0},${bulbY - h * 0.22} ${tx - w * 0.08 + shift},${y0 + h * 0.32} ${tx},${y0} Z`;
+  }
+
+  // ---------------------------------------------------------------- the room, the cake and the candle
+  function renderBokeh() {
+    const lights = [[.12, .17, 46, 'gold', .16], [.86, .11, 30, 'rose', .16], [.74, .3, 58, 'gold', .09], [.2, .41, 26, 'amber', .13],
+      [.91, .47, 40, 'rose', .09], [.06, .62, 62, 'gold', .07], [.33, .07, 22, 'amber', .18], [.62, .05, 38, 'gold', .11],
+      [.94, .7, 28, 'amber', .11], [.1, .86, 36, 'rose', .07], [.45, .21, 18, 'gold', .11], [.82, .87, 50, 'gold', .06]];
+    const colors = { gold: '#ffc76b', rose: '#ff8c80', amber: '#ff9e40' };
+    $('bokeh').innerHTML = '<defs><filter id="bokehBlur" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="9"/></filter></defs>' +
+      lights.map(([x, y, s, c, o]) => `<circle cx="${x * L.W}" cy="${y * L.H}" r="${s / 2}" fill="${colors[c]}" opacity="${o}" filter="url(#bokehBlur)"/>`).join('');
+  }
+
+  function cakeMarkup() {
+    const { midX, cakeW: w, cakeTopH: th, cakeSideH: sh, cakeBottom, cakeFrameTop: ft, cakeTopY: ty } = L;
+    const x0 = midX - w / 2, frost = w * 0.05;
+    let s = `<defs>
+      <linearGradient id="cakeSide"><stop offset="0" stop-color="${warm(.8, .7, .6)}"/><stop offset=".25" stop-color="${warm(.98, .92, .83)}"/>
+        <stop offset=".42" stop-color="${warm(1, .96, .9)}"/><stop offset=".7" stop-color="${warm(.95, .87, .77)}"/><stop offset="1" stop-color="${warm(.74, .63, .53)}"/></linearGradient>
+      <linearGradient id="frostEdge"><stop offset="0" stop-color="${warm(.8, .4, .52)}"/><stop offset=".3" stop-color="${warm(.97, .6, .7)}"/>
+        <stop offset=".45" stop-color="${warm(1, .7, .78)}"/><stop offset="1" stop-color="${warm(.76, .36, .48)}"/></linearGradient>
+      <linearGradient id="frostTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${warm(.93, .56, .67)}"/><stop offset="1" stop-color="${warm(1, .74, .82)}"/></linearGradient>
+      <linearGradient id="plateTop" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${warm(.82, .82, .86)}"/><stop offset="1" stop-color="${warm(1, 1, 1)}"/></linearGradient>
+      <radialGradient id="cream" cx="0.4" cy="0.35" r="0.65"><stop offset="0" stop-color="${warm(1, .99, .97)}"/><stop offset="1" stop-color="${warm(.86, .8, .74)}"/></radialGradient>
+      <filter id="cakeShadow" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="6"/></filter>
+    </defs>`;
+    // Plate, and the cake's shadow on it.
+    const pw = w * 1.2, ph = pw * 0.3, pcy = cakeBottom - th / 2 + 6;
+    s += `<ellipse cx="${midX}" cy="${pcy + 5}" rx="${pw / 2}" ry="${ph / 2}" fill="${warm(.6, .6, .64)}"/>`;
+    s += `<ellipse cx="${midX}" cy="${pcy}" rx="${pw / 2}" ry="${ph / 2}" fill="url(#plateTop)"/>`;
+    s += `<ellipse cx="${midX}" cy="${pcy - 1}" rx="${pw * 0.42}" ry="${ph * 0.42}" fill="none" stroke="${warm(.78, .78, .82, .8)}" stroke-width="1"/>`;
+    s += `<ellipse cx="${midX}" cy="${cakeBottom - th / 2 + 3}" rx="${w * 0.52}" ry="${th * 0.55}" fill="rgba(0,0,0,.35)" filter="url(#cakeShadow)"/>`;
+    // Cream side with piped beads along the bottom.
+    s += `<path d="${cylinderSide(x0, ft, w, th + sh, th)}" fill="url(#cakeSide)"/>`;
+    const br = w * 0.022;
+    for (let i = 0; i <= 18; i++) {
+      const x = -0.46 * w + 0.92 * w * i / 18;
+      const y = cakeBottom - th / 2 + (th / 2) * Math.sqrt(Math.max(0, 1 - (2 * x / w) ** 2)) - br * 0.9;
+      s += `<circle cx="${midX + x}" cy="${y}" r="${br}" fill="url(#cream)"/>`;
+    }
+    // Frosting: its edge, the drips, then the top.
+    s += `<ellipse cx="${midX}" cy="${ty + frost}" rx="${w / 2}" ry="${th / 2}" fill="url(#frostEdge)"/>`;
+    [[-0.42, 0.07, 0.22], [-0.3, 0.085, 0.4], [-0.16, 0.075, 0.28], [-0.03, 0.09, 0.48],
+      [0.1, 0.08, 0.32], [0.23, 0.085, 0.44], [0.35, 0.075, 0.27], [0.45, 0.06, 0.18]].forEach(([xf, wf, lf]) => {
+      const x = xf * w, dw = w * wf;
+      const rim = ty + (th / 2) * Math.sqrt(Math.max(0, 1 - (2 * x / w) ** 2)) + frost;
+      s += `<path d="${drip(midX + x - dw / 2, rim - dw * 0.8, dw, sh * lf)}" fill="url(#frostEdge)"/>`;
+    });
+    s += `<ellipse cx="${midX}" cy="${ty}" rx="${w / 2}" ry="${th / 2}" fill="url(#frostTop)"/>`;
+    // Sprinkles, leaving room for the candle in the middle.
+    const sprinkles = [[1, .85, .3], [.4, .75, 1], [.55, .9, .55], [1, 1, 1], [1, .6, .3], [.75, .55, 1]];
+    for (let i = 0; i < 46; i++) {
+      const a = noise(i, 1) * 2 * Math.PI, dist = Math.sqrt(noise(i, 2));
+      const px = midX + Math.cos(a) * dist * 0.4 * w, py = ty + Math.sin(a) * dist * 0.36 * th;
+      if (Math.abs(px - midX) < w * 0.11 && Math.abs(py - ty) < w * 0.065) continue;
+      const c = sprinkles[Math.floor(noise(i, 4) * sprinkles.length) % sprinkles.length];
+      s += `<g transform="translate(${px} ${py}) scale(1 0.55) rotate(${noise(i, 3) * 180})"><rect x="-1.2" y="-3.3" width="2.4" height="6.6" rx="1.2" fill="${warm(...c)}"/></g>`;
+    }
+    // Cream rosettes around the rim, back to front.
+    const rr = w * 0.048, rosettes = [];
+    for (let i = 0; i < 12; i++) {
+      const t = 2 * Math.PI * i / 12 + Math.PI / 12;
+      rosettes.push([midX + (w / 2 - rr * 0.9) * Math.cos(t), ty + (th / 2 - rr * 0.35) * Math.sin(t)]);
+    }
+    rosettes.sort((a, b) => a[1] - b[1]).forEach(([x, y]) => {
+      s += `<ellipse cx="${x}" cy="${y}" rx="${rr}" ry="${rr * 0.85}" fill="url(#cream)"/>`;
+      s += `<ellipse cx="${x - rr * 0.15}" cy="${y - rr * 0.35}" rx="${rr * 0.45}" ry="${rr * 0.3}" fill="${warm(1, 1, 1, .7)}"/>`;
+    });
+    return s;
+  }
+
+  function candleMarkup() {
+    const { midX, cw: w, ch: h, capH, candleTop: y0 } = L, x0 = midX - w / 2;
+    const pitch = w * 1.45, thick = pitch * 0.2;
+    return `<defs>
+      <clipPath id="candleClip"><path d="${cylinderSide(x0, y0, w, h, capH)}"/></clipPath>
+      <linearGradient id="candleShade"><stop offset="0" stop-color="rgba(0,0,0,.3)"/><stop offset=".3" stop-color="rgba(0,0,0,0)"/>
+        <stop offset=".4" stop-color="rgba(255,255,255,.35)"/><stop offset=".55" stop-color="rgba(255,255,255,0)"/><stop offset="1" stop-color="rgba(0,0,0,.35)"/></linearGradient>
+      <linearGradient id="candleWarm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${rgb(1, .6, .2, .3)}"/><stop offset=".45" stop-color="rgba(0,0,0,0)"/></linearGradient>
+      <linearGradient id="candleCap" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${warm(.9, .86, .84)}"/><stop offset="1" stop-color="${warm(1, 1, 1)}"/></linearGradient>
+      <linearGradient id="wickColor" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f0f0f"/><stop offset="1" stop-color="#4d3d2e"/></linearGradient>
+      <filter id="emberBlur" x="-2" y="-2" width="5" height="5"><feGaussianBlur stdDeviation="1"/></filter>
+    </defs>
+    <ellipse cx="${midX}" cy="${L.candleBottom - capH / 2 + capH * 0.2}" rx="${w * 0.75}" ry="${capH * 0.7}" fill="rgba(89,20,41,.35)"/>
+    <g clip-path="url(#candleClip)">
+      <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="${warm(.99, .97, .95)}"/>
+      <path d="${helix(x0, y0, w, h, pitch, thick, 0)}" fill="${warm(1, .42, .6)}"/>
+      <path d="${helix(x0, y0, w, h, pitch, thick, pitch / 2)}" fill="${warm(.36, .7, 1)}"/>
+      <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="url(#candleShade)"/>
+      <rect x="${x0}" y="${y0}" width="${w}" height="${h}" fill="url(#candleWarm)"/>
+    </g>
+    <ellipse cx="${midX}" cy="${y0 + capH / 2}" rx="${w / 2}" ry="${capH / 2}" fill="url(#candleCap)"/>
+    <g transform="rotate(5 ${midX} ${L.wickBase.y})"><rect x="${midX - 1.2}" y="${L.wickTip.y}" width="2.4" height="${L.wickH}" rx="1.2" fill="url(#wickColor)"/></g>
+    <circle id="emberDot" cx="${midX + 0.6}" cy="${L.wickTip.y + 1}" r="2" fill="#ff7320" filter="url(#emberBlur)"/>`;
+  }
+
+  // ---------------------------------------------------------------- the flame
+  // Builds a flame (with its halo) into an <svg> and returns a function that poses it each frame.
+  let flameCount = 0;
+  function buildFlame(svg, cx, cy, w, h, haloScale) {
+    const id = 'f' + (flameCount++);
+    const by = cy + h / 2, x0 = cx - w / 2, y0 = cy - h / 2;
+    const core = { w: w * 0.46, h: h * 0.56 };
+    const halo = h * haloScale;
+    const g = document.createElementNS(SVGNS, 'g');
+    g.innerHTML = `<defs>
+      <radialGradient id="${id}body" gradientUnits="objectBoundingBox" cx="0.5" cy="0.72" r="0.8">
+        <stop offset="0" stop-color="${rgb(1, .99, .9)}"/><stop offset="0.38" stop-color="${rgb(1, .87, .45)}"/>
+        <stop offset="0.72" stop-color="${rgb(1, .62, .2)}"/><stop offset="1" stop-color="${rgb(.96, .4, .1)}"/></radialGradient>
+      <linearGradient id="${id}fade" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#000"/><stop offset="0.24" stop-color="#fff"/></linearGradient>
+      <mask id="${id}bodyMask" maskUnits="userSpaceOnUse" x="${x0 - 2 * w}" y="${y0 - h}" width="${5 * w}" height="${3 * h}">
+        <rect x="${x0 - 2 * w}" y="${y0}" width="${5 * w}" height="${h}" fill="url(#${id}fade)"/></mask>
+      <linearGradient id="${id}coreFade" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#000"/><stop offset="0.3" stop-color="#fff"/></linearGradient>
+      <mask id="${id}coreMask" maskUnits="userSpaceOnUse" x="${x0 - 2 * w}" y="${y0 - h}" width="${5 * w}" height="${3 * h}">
+        <rect x="${x0 - 2 * w}" y="${by - h * 0.07 - core.h}" width="${5 * w}" height="${core.h}" fill="url(#${id}coreFade)"/></mask>
+      <linearGradient id="${id}core" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="${rgb(1, .96, .78)}"/></linearGradient>
+      <filter id="${id}b1" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="${w * 0.07}"/></filter>
+      <filter id="${id}b2" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="${w * 0.045}"/></filter>
+      <filter id="${id}b3" x="-1" y="-1" width="3" height="3"><feGaussianBlur stdDeviation="${w * 0.08}"/></filter>
+      <radialGradient id="${id}halo"><stop offset="0" stop-color="${rgb(1, .66, .3, .5)}"/><stop offset="0.35" stop-color="${rgb(1, .5, .16, .17)}"/><stop offset="1" stop-color="${rgb(1, .4, .1, 0)}"/></radialGradient>
+      <radialGradient id="${id}aura"><stop offset="0" stop-color="${rgb(1, .78, .45, .35)}"/><stop offset="1" stop-color="${rgb(1, .6, .25, 0)}"/></radialGradient>
+    </defs>
+    <g class="halo">
+      <circle cx="${cx}" cy="${by - h * 0.35}" r="${halo / 2}" fill="url(#${id}halo)"/>
+      <circle cx="${cx}" cy="${by - h * 0.35}" r="${h * 0.8}" fill="url(#${id}aura)"/>
+    </g>
+    <g class="pose">
+      <ellipse cx="${cx}" cy="${by - h * 0.1}" rx="${w * 0.31}" ry="${h * 0.1}" fill="${rgb(.32, .5, 1, .75)}" filter="url(#${id}b1)"/>
+      <g filter="url(#${id}b2)"><path class="body" fill="url(#${id}body)" mask="url(#${id}bodyMask)"/></g>
+      <g filter="url(#${id}b3)" opacity="0.9"><path class="core" fill="url(#${id}core)" mask="url(#${id}coreMask)"/></g>
+    </g>`;
+    svg.appendChild(g);
+    const haloEl = g.querySelector('.halo'), pose = g.querySelector('.pose');
+    const bodyEl = g.querySelector('.body'), coreEl = g.querySelector('.core');
+    return {
+      element: g,
+      update(st, scale = 1, fade = 1) {
+        const sx = st.squeeze * scale, sy = st.stretch * scale;
+        pose.setAttribute('transform', `translate(${cx} ${by}) scale(${sx} ${sy}) translate(${-cx} ${-by})`);
+        pose.setAttribute('opacity', (st.opacity * fade).toFixed(3));
+        haloEl.setAttribute('opacity', (clamp(0.85 * st.glow, 0, 1) * fade).toFixed(3));
+        bodyEl.setAttribute('d', flamePath(x0, y0, w, h, st.lean));
+        const coreX0 = cx - core.w / 2 + st.lean * w * 0.2;
+        coreEl.setAttribute('d', flamePath(coreX0, by - h * 0.07 - core.h, core.w, core.h, st.lean * 0.55));
+      },
+    };
+  }
+
+  // Turns time and the breath level into a lively but continuous flicker.
+  class FlameMotion {
+    constructor() { this.last = null; this.gust = 0; this.seed = Math.random() * 100; }
+    state(time, gust) {
+      const dt = this.last === null ? 0 : clamp(time - this.last, 0, 0.1);
+      this.last = time;
+      this.gust += (gust - this.gust) * (1 - Math.exp(-dt / 0.12));
+      const g = this.gust, t = time + this.seed;
+      const sway = 0.6 * Math.sin(t * 1.7) + 0.3 * Math.sin(t * 3.1 + 1.3) + 0.1 * Math.sin(t * 6.7 + 0.4);
+      const flutter = 0.5 * Math.sin(t * 21) + 0.5 * Math.sin(t * 33 + 2);
+      const flicker = 0.035 * Math.sin(t * 10.3) + 0.025 * Math.sin(t * 16.9 + 0.7) + 0.02 * Math.sin(t * 4.9 + 2.1);
+      return {
+        lean: 0.08 * sway + g * (0.5 + 0.3 * flutter),
+        stretch: 1 + flicker - 0.3 * g + 0.1 * g * flutter,
+        squeeze: 1 - 0.5 * flicker + 0.12 * g,
+        glow: 1 + 0.07 * Math.sin(t * 9.1) + 0.05 * Math.sin(t * 14.3 + 1) - 0.4 * g,
+        opacity: 1 - 0.3 * g,
+      };
+    }
+  }
+
+  // ---------------------------------------------------------------- blow detection
+  // Blowing makes loud wind noise at the microphone that lasts a moment; talking, singing and
+  // claps are quieter or much shorter. The threshold also rises with the background noise.
+  class BlowAnalyzer {
+    constructor() {
+      this.sensitivity = 0.6; this.requiredDuration = 0.25; this.warmUp = 0.6;
+      this.level = 0; this.ambient = 0.15; this.sustained = 0; this.elapsed = 0;
+    }
+    get threshold() {
+      const base = 0.86 - 0.32 * clamp(this.sensitivity, 0, 1);
+      return Math.min(0.96, Math.max(base, this.ambient + 0.2));
+    }
+    get gust() {
+      const start = this.ambient + 0.06;
+      return clamp((this.level - start) / Math.max(this.threshold - start, 0.05), 0, 1);
+    }
+    restart() { this.level = 0; this.sustained = 0; this.elapsed = 0; }
+    process(decibels, duration) {
+      const instant = clamp((decibels + 60) / 55, 0, 1);
+      const dt = Math.max(duration, 0.001);
+      this.elapsed += dt;
+      const smoothing = instant > this.level ? 0.04 : 0.2;
+      this.level += (instant - this.level) * (1 - Math.exp(-dt / smoothing));
+      const warmingUp = this.elapsed < this.warmUp;
+      if (warmingUp || instant < this.threshold - 0.08) {
+        const falling = instant < this.ambient;
+        const tc = warmingUp ? (falling ? 0.1 : 0.3) : (falling ? 0.5 : 4);
+        this.ambient += (instant - this.ambient) * (1 - Math.exp(-dt / tc));
+      }
+      if (warmingUp) return false;
+      this.sustained = instant >= this.threshold ? this.sustained + dt : Math.max(0, this.sustained - 2 * dt);
+      return this.sustained >= this.requiredDuration;
+    }
+  }
+
+  // ---------------------------------------------------------------- audio: microphone and song
+  function setAudioSession(type) {
+    try { if (navigator.audioSession) navigator.audioSession.type = type; } catch (e) { /* not supported */ }
+  }
+  const audio = {
+    ctx: null, stream: null, source: null, analyser: null, sink: null, buffer: null, song: null,
+    context() {
+      if (!this.ctx) {
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        this.ctx = new Ctx();
+        this.ctx.onstatechange = () => render();
+      }
+      if (this.ctx.state !== 'running') this.ctx.resume().catch(() => {});
+      return this.ctx;
+    },
+    async startMic() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        const error = new Error('getUserMedia unavailable');
+        error.name = 'NotSupportedError';
+        throw error;
+      }
+      setAudioSession('play-and-record');
+      // No echo cancellation, noise suppression or auto gain: they would filter out the very wind noise we listen for.
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }, video: false,
+      });
+      const ctx = this.context();
+      if (!ctx) { stream.getTracks().forEach((t) => t.stop()); const e = new Error('no Web Audio'); e.name = 'NotSupportedError'; throw e; }
+      this.stream = stream;
+      this.source = ctx.createMediaStreamSource(stream);
+      this.analyser = ctx.createAnalyser();
+      this.analyser.fftSize = 2048;
+      this.analyser.smoothingTimeConstant = 0;
+      // A silent path to the speakers keeps Safari pulling audio through the analyser.
+      this.sink = ctx.createGain();
+      this.sink.gain.value = 0;
+      this.source.connect(this.analyser);
+      this.analyser.connect(this.sink);
+      this.sink.connect(ctx.destination);
+      this.buffer = new Float32Array(this.analyser.fftSize);
+    },
+    stopMic() {
+      if (this.stream) this.stream.getTracks().forEach((t) => t.stop());
+      for (const node of [this.source, this.analyser, this.sink]) { try { if (node) node.disconnect(); } catch (e) { /* already gone */ } }
+      this.stream = this.source = this.analyser = this.sink = null;
+    },
+    // RMS loudness of the latest audio, in dBFS; null while there is nothing to read.
+    decibels() {
+      if (!this.analyser || !this.ctx || this.ctx.state !== 'running') return null;
+      const buf = this.buffer;
+      if (this.analyser.getFloatTimeDomainData) {
+        this.analyser.getFloatTimeDomainData(buf);
+      } else {
+        const bytes = new Uint8Array(buf.length);
+        this.analyser.getByteTimeDomainData(bytes);
+        for (let i = 0; i < bytes.length; i++) buf[i] = (bytes[i] - 128) / 128;
+      }
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) sum += buf[i] * buf[i];
+      return 20 * Math.log10(Math.max(Math.sqrt(sum / buf.length), 1e-6));
+    },
+    // A music-box "Happy Birthday to You": each note a soft bell, the fundamental plus fading overtones.
+    playSong() {
+      const ctx = this.context();
+      if (!ctx) return;
+      this.stopSong();
+      setAudioSession('ambient');
+      const melody = [[67, .75], [67, .25], [69, 1], [67, 1], [72, 1], [71, 2],
+        [67, .75], [67, .25], [69, 1], [67, 1], [74, 1], [72, 2],
+        [67, .75], [67, .25], [79, 1], [76, 1], [72, 1], [71, 1], [69, 2],
+        [77, .75], [77, .25], [76, 1], [72, 1], [74, 1], [72, 3]];
+      const master = ctx.createGain();
+      master.gain.value = 0.9;
+      master.connect(ctx.destination);
+      let t = ctx.currentTime + 0.05;
+      for (const [note, beats] of melody) {
+        const f = 440 * Math.pow(2, (note - 69) / 12);
+        for (const [mult, amp, decay] of [[1, 1, 3], [2, 0.45, 12], [3, 0.18, 12]]) {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.frequency.value = f * mult;
+          gain.gain.setValueAtTime(0, t);
+          gain.gain.linearRampToValueAtTime(0.15 * amp, t + 0.005);
+          gain.gain.setTargetAtTime(0, t + 0.005, 1 / decay);
+          osc.connect(gain);
+          gain.connect(master);
+          osc.start(t);
+          osc.stop(t + 1.8);
+        }
+        t += beats * 0.5;
+      }
+      this.song = master;
+    },
+    stopSong() {
+      if (!this.song) return;
+      try { this.song.disconnect(); } catch (e) { /* already gone */ }
+      this.song = null;
+    },
+  };
+
+  // ---------------------------------------------------------------- state
+  const state = {
+    phase: 'unlit',      // unlit | lit | blownOut
+    mic: 'idle',         // idle | starting | listening | denied | unavailable
+    gust: 0, loudness: 0, threshold: 0.7,
+    litAt: 0, outAt: 0,
+    nudge: false,
+    holding: false,
+    demoGust: null,
+  };
+  const analyzer = new BlowAnalyzer();
+  const motion = new FlameMotion(), matchMotion = new FlameMotion();
+  let flame = null, matchFlame = null, wakeLock = null, songTimer = 0;
+  const now = () => performance.now() / 1000;
+  // A short vibration where the phone supports it (Android); browsers refuse it before the first tap.
+  function buzz(ms) {
+    const active = !navigator.userActivation || navigator.userActivation.hasBeenActive;
+    if (navigator.vibrate && active) navigator.vibrate(ms);
+  }
+
+  function light() {
+    if (state.phase === 'lit') return;
+    audio.stopSong();
+    clearTimeout(songTimer);
+    state.phase = 'lit';
+    state.litAt = now();
+    state.nudge = false;
+    state.gust = 0; state.loudness = 0;
+    requestWakeLock();
+    startListening();
+    render();
+    kick();
+  }
+
+  function blowOut() {
+    if (state.phase !== 'lit') return;
+    stopListening();
+    state.phase = 'blownOut';
+    state.outAt = now();
+    state.gust = 0;
+    releaseWakeLock();
+    buzz(30);
+    if (settings.song) songTimer = setTimeout(() => { if (state.phase === 'blownOut') audio.playSong(); }, 700);
+    render();
+    kick();
+  }
+
+  async function startListening() {
+    if (state.demoGust !== null || state.mic === 'starting' || state.mic === 'listening') return;
+    state.mic = 'starting';
+    analyzer.restart();
+    try {
+      await audio.startMic();
+      if (state.phase !== 'lit' || document.hidden) { audio.stopMic(); state.mic = 'idle'; render(); return; }
+      state.mic = 'listening';
+    } catch (error) {
+      state.mic = error && (error.name === 'NotAllowedError' || error.name === 'SecurityError') ? 'denied' : 'unavailable';
+    }
+    render();
+    kick();
+  }
+
+  function stopListening() {
+    audio.stopMic();
+    if (state.mic === 'listening' || state.mic === 'starting') state.mic = 'idle';
+    state.loudness = 0;
+  }
+
+  async function requestWakeLock() {
+    try { if (navigator.wakeLock && !wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) { wakeLock = null; }
+  }
+  function releaseWakeLock() {
+    if (wakeLock) { wakeLock.release().catch(() => {}); wakeLock = null; }
+  }
+
+  // ---------------------------------------------------------------- text and controls
+  const hintMain = $('hintMain'), hintDetail = $('hintDetail'), meter = $('meter'), meterFill = $('meterFill');
+  let settingsLink = null;
+  function render() {
+    document.body.classList.toggle('unlit', state.phase === 'unlit');
+    document.body.classList.toggle('lit', state.phase === 'lit');
+    document.body.classList.toggle('blownOut', state.phase === 'blownOut');
+    let main, detail, showMeter = false, showLink = false;
+    if (state.phase === 'unlit') {
+      main = '拖动火柴靠近烛芯，点燃蜡烛';
+      detail = '也可以直接轻点蜡烛';
+    } else if (state.phase === 'lit') {
+      if (state.mic === 'denied') {
+        main = '需要麦克风权限才能感应吹气';
+        detail = '在浏览器的网站设置里允许麦克风，再刷新页面。也可以轻点火焰来熄灭。';
+      } else if (state.mic === 'unavailable') {
+        main = '这个浏览器用不了麦克风';
+        detail = '可以轻点火焰来熄灭';
+      } else {
+        main = state.nudge ? '对着手机吹一口气试试 🌬️' : '闭上眼睛，许个愿吧 ✨';
+        detail = '许好愿后，对着手机底部吹一口气';
+        showMeter = state.mic === 'listening';
+        if (showMeter && audio.ctx && audio.ctx.state !== 'running') detail = '轻点一下屏幕，开始感应吹气';
+      }
+    } else {
+      main = '愿望一定会实现的 ✨';
+      detail = '拖动火柴，可以再点一次';
+    }
+    hintMain.textContent = main;
+    hintDetail.textContent = detail;
+    meter.hidden = !showMeter;
+    $('tapTarget').setAttribute('aria-label', state.phase === 'lit' ? '燃烧中的蜡烛' : '蜡烛，轻点点燃');
+    $('match').classList.toggle('hidden', state.phase === 'lit' && !state.holding);
+  }
+
+  function updateMeter() {
+    const progress = clamp(state.loudness / Math.max(state.threshold, 0.01), 0, 1);
+    meterFill.style.transform = `scaleX(${Math.max(progress, 0.04).toFixed(3)})`;
+  }
+
+  function candleTapped() {
+    audio.context();
+    if (state.phase !== 'lit') {
+      light();
+    } else if (state.mic === 'denied' || state.mic === 'unavailable') {
+      blowOut();
+    } else {
+      state.nudge = true;
+      render();
+    }
+  }
+
+  // ---------------------------------------------------------------- the match
+  const matchEl = $('match'), matchFlameSvg = $('matchFlame');
+  let drag = null;
+  function placeMatch(dx = 0, dy = 0) {
+    matchEl.style.left = (L.match.x - 35) + 'px';
+    matchEl.style.top = (L.match.y - 55) + 'px';
+    matchEl.style.transform = `translate(${dx}px, ${dy}px)`;
+  }
+  matchEl.addEventListener('pointerdown', (event) => {
+    if (state.phase === 'lit') return;
+    event.preventDefault();
+    audio.context();
+    matchEl.setPointerCapture(event.pointerId);
+    matchEl.classList.remove('returning');
+    drag = { id: event.pointerId, x: event.clientX, y: event.clientY, dx: 0, dy: 0 };
+    state.holding = true;
+    buzz(10);
+    render();
+    kick();
+  });
+  matchEl.addEventListener('pointermove', (event) => {
+    if (!drag || event.pointerId !== drag.id) return;
+    drag.dx = event.clientX - drag.x;
+    drag.dy = event.clientY - drag.y;
+    placeMatch(drag.dx, drag.dy);
+    if (state.phase !== 'lit') {
+      // The match's flame burns just above its head; the candle lights when it reaches the wick.
+      const head = matchHead(L.match.x + drag.dx, L.match.y + drag.dy);
+      if (Math.hypot(head.x - L.wickTip.x, head.y - 11 - L.wickTip.y) < 30) light();
+    }
+  });
+  function endDrag(event) {
+    if (!drag || event.pointerId !== drag.id) return;
+    drag = null;
+    state.holding = false;
+    audio.context();
+    matchEl.classList.add('returning');
+    placeMatch(0, 0);
+    render();
+  }
+  matchEl.addEventListener('pointerup', endDrag);
+  matchEl.addEventListener('pointercancel', endDrag);
+
+  // ---------------------------------------------------------------- smoke and confetti
+  const canvas = $('effects'), fx = canvas.getContext('2d');
+  const confettiColors = ['#ffd666', '#ff8c9e', '#8cccff', '#99ebb3', '#cca6ff', '#ffa866'];
+  const confetti = Array.from({ length: 110 }, () => ({
+    x: Math.random(), delay: Math.random() * 0.9, speed: 0.22 + Math.random() * 0.16,
+    sway: 8 + Math.random() * 20, swaySpeed: 1.5 + Math.random() * 2, spin: -4 + Math.random() * 8,
+    flip: 3 + Math.random() * 6, w: 6 + Math.random() * 4, h: 9 + Math.random() * 6,
+    color: confettiColors[Math.floor(Math.random() * confettiColors.length)], round: Math.random() < 0.25,
+  }));
+  function sizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    canvas.width = Math.round(L.W * dpr);
+    canvas.height = Math.round(L.H * dpr);
+    fx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  // Returns whether anything is still moving.
+  function drawEffects(time) {
+    fx.clearRect(0, 0, L.W, L.H);
+    if (state.phase !== 'blownOut') return false;
+    const e = time - state.outAt;
+    const ox = L.wickTip.x, oy = L.wickTip.y;
+    let active = false;
+    const heat = Math.max(0, 1 - e / 2.2);
+    if (heat > 0) {
+      active = true;
+      const g = fx.createRadialGradient(ox, oy, 0, ox, oy, 5);
+      g.addColorStop(0, `rgba(255,107,26,${heat})`);
+      g.addColorStop(1, 'rgba(255,107,26,0)');
+      fx.fillStyle = g;
+      fx.beginPath(); fx.arc(ox, oy, 5, 0, Math.PI * 2); fx.fill();
+    }
+    for (let i = 0; i < 40; i++) {
+      const age = e - i * 0.045, life = 2.6;
+      if (age <= 0 || age >= life) continue;
+      active = true;
+      const p = age / life;
+      const x = ox + Math.sin(age * 2.2 + i * 0.55) * (4 + age * 16) + age * 6;
+      const y = oy - (age * 55 + age * age * 8);
+      const r = 2.5 + p * 15 + 7;
+      const alpha = 0.3 * (1 - p) * (1 - p) * Math.min(1, age * 8);
+      const g = fx.createRadialGradient(x, y, 0, x, y, r);
+      g.addColorStop(0, `rgba(209,209,209,${alpha})`);
+      g.addColorStop(1, 'rgba(209,209,209,0)');
+      fx.fillStyle = g;
+      fx.beginPath(); fx.arc(x, y, r, 0, Math.PI * 2); fx.fill();
+    }
+    const fade = clamp(5.5 - e, 0, 1);
+    if (fade > 0) {
+      active = true;
+      const dpr = canvas.width / L.W;
+      fx.save();
+      fx.globalAlpha = fade;
+      for (const c of confetti) {
+        const age = e - c.delay;
+        if (age <= 0) continue;
+        const y = -20 + age * c.speed * L.H + age * age * 12;
+        if (y > L.H + 20) continue;
+        const x = c.x * L.W + Math.sin(age * c.swaySpeed + c.x * 10) * c.sway;
+        fx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        fx.translate(x, y);
+        fx.rotate(age * c.spin);
+        fx.scale(Math.cos(age * c.flip), 1);
+        fx.fillStyle = c.color;
+        if (c.round) { fx.beginPath(); fx.ellipse(0, 0, c.w / 2, c.h / 2, 0, 0, Math.PI * 2); fx.fill(); }
+        else fx.fillRect(-c.w / 2, -c.h / 2, c.w, c.h);
+      }
+      fx.restore();
+    }
+    return active;
+  }
+
+  // ---------------------------------------------------------------- animation loop
+  let running = false, lastFrame = null;
+  function kick() {
+    if (running) return;
+    running = true;
+    lastFrame = null;
+    requestAnimationFrame(frame);
+  }
+  function spring(t) {
+    // A damped spring from 0 to 1 that overshoots a little: the flame flares as it catches.
+    if (t <= 0) return 0;
+    return 1 - Math.exp(-7 * t) * (Math.cos(12.1 * t) + (7 / 12.1) * Math.sin(12.1 * t));
+  }
+  function frame(ms) {
+    const time = ms / 1000;
+    const dt = lastFrame === null ? 1 / 60 : clamp(time - lastFrame, 0, 0.1);
+    lastFrame = time;
+    let busy = false;
+
+    if (state.phase === 'lit') {
+      busy = true;
+      if (state.demoGust !== null) {
+        state.gust = state.demoGust;
+      } else if (state.mic === 'listening') {
+        const db = audio.decibels();
+        if (db !== null) {
+          analyzer.sensitivity = settings.sensitivity;
+          const blown = analyzer.process(db, dt);
+          state.gust = analyzer.gust;
+          state.loudness = analyzer.level;
+          state.threshold = analyzer.threshold;
+          updateMeter();
+          if (blown) blowOut();
+        }
+      }
+    }
+
+    // Main flame: grows in with a spring when lit, shrinks away when blown out.
+    const t = now();
+    if (flame) {
+      if (state.phase === 'lit') {
+        const grow = 0.05 + 0.95 * spring(t - state.litAt);
+        flame.element.style.display = '';
+        flame.update(motion.state(time, state.gust), grow, clamp((t - state.litAt) / 0.15, 0, 1));
+      } else if (state.phase === 'blownOut' && t - state.outAt < 0.2) {
+        busy = true;
+        const p = (t - state.outAt) / 0.2;
+        flame.update(motion.state(time, 1), 1 - 0.7 * p * p, 1 - p);
+      } else {
+        flame.element.style.display = 'none';
+      }
+    }
+
+    // The match's own little flame, while it is held.
+    if (matchFlame) {
+      if (state.holding && drag) {
+        busy = true;
+        const head = matchHead(L.match.x + drag.dx, L.match.y + drag.dy);
+        matchFlameSvg.style.display = '';
+        matchFlameSvg.style.transform = `translate(${head.x - 60}px, ${head.y - 11 - 60}px)`;
+        matchFlame.update(matchMotion.state(time, 0));
+      } else {
+        matchFlameSvg.style.display = 'none';
+      }
+    }
+
+    if (drawEffects(t)) busy = true;
+    if (busy) requestAnimationFrame(frame);
+    else running = false;
+  }
+
+  // ---------------------------------------------------------------- building the scene
+  function build() {
+    L = computeLayout();
+    renderBokeh();
+    $('scene').innerHTML = cakeMarkup() + candleMarkup();
+    const flameSvg = $('flameLayer');
+    flameSvg.innerHTML = '';
+    flame = buildFlame(flameSvg, L.flameCenter.x, L.flameCenter.y, L.fw, L.fh, 4.2);
+    flame.element.style.display = 'none';
+    // The match flame lives in its own small SVG that follows the match head.
+    matchFlameSvg.innerHTML = '';
+    matchFlameSvg.setAttribute('width', '120');
+    matchFlameSvg.setAttribute('height', '120');
+    matchFlameSvg.style.left = '0px';
+    matchFlameSvg.style.top = '0px';
+    matchFlame = buildFlame(matchFlameSvg, 60, 60, 11, 30, 3);
+    matchFlameSvg.style.display = 'none';
+
+    const title = $('title');
+    title.style.top = L.title.y + 'px';
+    const hint = $('hint');
+    hint.style.top = L.hint.y + 'px';
+    const tap = $('tapTarget');
+    tap.style.left = (L.midX - L.cakeW / 2) + 'px';
+    tap.style.top = L.flameTop + 'px';
+    tap.style.width = L.cakeW + 'px';
+    tap.style.height = (L.cakeBottom - L.flameTop) + 'px';
+    placeMatch(0, 0);
+    sizeCanvas();
+    render();
+    kick();
+  }
+
+  // ---------------------------------------------------------------- settings sheet
+  const sheet = $('settingsSheet'), backdrop = $('backdrop');
+  const sensitivityInput = $('sensitivity'), songInput = $('song');
+  function openSettings() {
+    sensitivityInput.value = String(settings.sensitivity);
+    songInput.checked = settings.song;
+    sheet.hidden = false;
+    backdrop.hidden = false;
+    $('settingsDone').focus();
+  }
+  function closeSettings() {
+    sheet.hidden = true;
+    backdrop.hidden = true;
+    $('settingsButton').focus();
+  }
+  $('settingsButton').addEventListener('click', openSettings);
+  $('settingsDone').addEventListener('click', closeSettings);
+  backdrop.addEventListener('click', closeSettings);
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && !sheet.hidden) closeSettings(); });
+  sensitivityInput.addEventListener('input', () => {
+    settings.sensitivity = clamp(Number(sensitivityInput.value), 0, 1);
+    store.set('candle.sensitivity', settings.sensitivity);
+  });
+  songInput.addEventListener('change', () => {
+    settings.song = songInput.checked;
+    store.set('candle.song', settings.song);
+    if (!settings.song) audio.stopSong();
+  });
+
+  // ---------------------------------------------------------------- wiring
+  $('tapTarget').addEventListener('click', candleTapped);
+  $('tapTarget').addEventListener('keydown', (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); candleTapped(); } });
+  $('tapTarget').tabIndex = 0;
+  // Safari only lets audio start from a tap, so every tap makes sure the audio engine is awake.
+  for (const type of ['pointerup', 'touchend', 'click']) {
+    document.addEventListener(type, () => { if (audio.ctx || state.phase === 'lit') audio.context(); }, { passive: true });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopListening();
+      audio.stopSong();
+      render();
+    } else if (state.phase === 'lit') {
+      requestWakeLock();
+      startListening();
+      kick();
+    }
+  });
+  let resizeTimer = 0;
+  window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(build, 120); });
+
+  // For trying the page without blowing: ?demo=lit, ?demo=blowing or ?demo=blownOut.
+  const demo = new URLSearchParams(location.search).get('demo');
+  build();
+  if (demo === 'lit' || demo === 'blowing' || demo === 'blownOut') {
+    state.demoGust = demo === 'blowing' ? 0.8 : 0;
+    light();
+    if (demo === 'blownOut') setTimeout(blowOut, 500);
+  }
+})();
+</script>
+</body>
+</html>
